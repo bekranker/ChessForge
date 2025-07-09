@@ -23,7 +23,7 @@ public class AISettings
 {
     public AIPersonality personality = AIPersonality.Balanced;
     public AIDifficulty difficulty = AIDifficulty.Medium;
-    public float thinkingTime = 2f;        // Time AI takes to "think"
+    public float thinkingTime = 0.5f;      // Time AI takes to "think" - reduced for better UX
     public bool showThinking = true;       // Show AI thinking process in logs
     public float aggressiveness = 0.5f;    // 0 = very defensive, 1 = very aggressive
 }
@@ -45,6 +45,18 @@ public class ComputerPlayer : MonoBehaviour
     
     private bool isThinking = false;
     
+    void Update()
+    {
+        // Safety check: if we're supposed to be thinking for too long, reset the thinking state
+        if (isThinking && Time.time > lastThinkingStartTime + (aiSettings.thinkingTime * 3))
+        {
+            Debug.LogWarning($"🤖 {computerName}: Thinking timeout detected! Resetting thinking state.");
+            isThinking = false;
+        }
+    }
+    
+    private float lastThinkingStartTime;
+    
     public void Initialize(GameManager manager)
     {
         gameManager = manager;
@@ -58,14 +70,26 @@ public class ComputerPlayer : MonoBehaviour
     
     public bool IsComputerTurn()
     {
-        return gameManager.currentPlayer == computerPlayerIndex && !isThinking;
+        bool isMyTurn = gameManager.currentPlayer == computerPlayerIndex && !isThinking;
+        if (isMyTurn)
+        {
+            Debug.Log($"🤖 {computerName}: It's my turn! Phase: {gameManager.currentPhase}, Player: {gameManager.currentPlayer}");
+        }
+        return isMyTurn;
     }
     
     public void HandleAITurn()
     {
+        Debug.Log($"🤖 {computerName}: HandleAITurn called - Phase: {gameManager.currentPhase}, Player: {gameManager.currentPlayer}, IsThinking: {isThinking}");
+        
         if (isThinking || gameManager.currentPlayer != computerPlayerIndex)
+        {
+            Debug.Log($"🤖 {computerName}: Skipping turn - isThinking: {isThinking}, currentPlayer: {gameManager.currentPlayer}, myIndex: {computerPlayerIndex}");
             return;
+        }
             
+        Debug.Log($"🤖 {computerName}: Starting AI turn for phase: {gameManager.currentPhase}");
+        
         switch (gameManager.currentPhase)
         {
             case GamePhase.CardDeployment:
@@ -77,12 +101,17 @@ public class ComputerPlayer : MonoBehaviour
             case GamePhase.ChessBattle:
                 StartCoroutine(HandleChessBattleAI());
                 break;
+            default:
+                Debug.LogWarning($"🤖 {computerName}: Unhandled game phase: {gameManager.currentPhase}");
+                break;
         }
     }
     
     IEnumerator HandleCardDeploymentAI()
     {
         isThinking = true;
+        lastThinkingStartTime = Time.time;
+        Debug.Log($"🤖 {computerName}: Starting card deployment AI");
         
         if (aiSettings.showThinking)
             Debug.Log($"{computerName} is thinking about card placement...");
@@ -91,9 +120,11 @@ public class ComputerPlayer : MonoBehaviour
         
         // Get available cards for computer
         List<Card> computerHand = cardSystem.GetPlayerHand(computerPlayerIndex);
+        Debug.Log($"🤖 {computerName}: Current hand size: {computerHand.Count}");
         
         if (computerHand.Count == 0)
         {
+            Debug.Log($"🤖 {computerName}: No cards in hand, trying to draw...");
             // Try to draw a card from deck
             if (!cardSystem.TakeACardFromDeck(computerPlayerIndex))
             {
@@ -104,10 +135,12 @@ public class ComputerPlayer : MonoBehaviour
             }
             
             computerHand = cardSystem.GetPlayerHand(computerPlayerIndex);
+            Debug.Log($"🤖 {computerName}: Drew card, new hand size: {computerHand.Count}");
         }
         
         // Select best card to play
         Card selectedCard = SelectBestCard(computerHand);
+        Debug.Log($"🤖 {computerName}: Selected card: {selectedCard?.pieceType}");
         
         if (selectedCard != null)
         {
@@ -115,13 +148,19 @@ public class ComputerPlayer : MonoBehaviour
             
             // Find best position to place the card
             Vector2Int bestPosition = FindBestCardPlacement(selectedCard);
+            Debug.Log($"🤖 {computerName}: Best position found: {bestPosition}");
             
             if (bestPosition != Vector2Int.one * -1) // Valid position found
             {
                 if (aiSettings.showThinking)
                     Debug.Log($"{computerName} places {selectedCard.pieceType} at {bestPosition}");
                 
-                cardSystem.TryPlaceCardAt(bestPosition);
+                bool placed = cardSystem.TryPlaceCardAtPosition(selectedCard, bestPosition);
+                if (!placed)
+                {
+                    Debug.LogError($"❌ Failed to place {selectedCard.pieceType} at {bestPosition}!");
+                    gameManager.NextTurn();
+                }
             }
             else
             {
@@ -136,16 +175,18 @@ public class ComputerPlayer : MonoBehaviour
         }
         
         isThinking = false;
+        Debug.Log($"🤖 {computerName}: Card deployment AI complete");
     }
     
     IEnumerator HandleBettingAI()
     {
         isThinking = true;
+        lastThinkingStartTime = Time.time;
         
         if (aiSettings.showThinking)
             Debug.Log($"{computerName} is thinking about betting strategy...");
         
-        yield return new WaitForSeconds(aiSettings.thinkingTime * 0.5f);
+        yield return new WaitForSeconds(aiSettings.thinkingTime * 0.3f); // Even shorter for betting
         
         // Simple AI betting logic
         List<ChessPiece> computerPieces = boardManager.GetAllPiecesForPlayer(computerPlayerIndex);
@@ -196,6 +237,7 @@ public class ComputerPlayer : MonoBehaviour
     IEnumerator HandleChessBattleAI()
     {
         isThinking = true;
+        lastThinkingStartTime = Time.time;
         
         if (aiSettings.showThinking)
             Debug.Log($"{computerName} is analyzing the board...");

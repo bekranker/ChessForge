@@ -167,6 +167,14 @@ MonoBehaviour:
   cardBackground: {fileID: 6343797466664347510}
   pieceIcon: {fileID: 3907587950637483585}
   pieceNameText: {fileID: 0}
-  playerText: {fileID: 0}
-  player1Color: {r: 1, g: 1, b: 1, a: 1}
-  player2Color: {r: 0, g: 0, b: 0, a: 1}
+  selectionHighlight: {fileID: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  hoverColor: {r: 0, g: 1, b: 1, a: 1}
+  disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  draggingColor: {r: 1, g: 1, b: 1, a: 0.6}
+  dragCanvas: {fileID: 0}
+  dragScale: 1.2
+  boardLayerMask:
+    serializedVersion: 2
+    m_Bits: 8

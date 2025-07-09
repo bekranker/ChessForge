@@ -836,11 +836,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentPhase: 0
-  selectedBoardSize: 3
+  selectedBoardSize: 6
   gameMode: 0
   currentPlayer: 0
   currentTurn: 0
-  turnTimeLimit: 10
+  turnTimeLimit: 15
   currentTurnTime: 0
   gameConfig: {fileID: 0}
   boardManager: {fileID: 845755379}
@@ -874,6 +874,7 @@ Transform:
   - {fileID: 416169999}
   - {fileID: 754040961}
   - {fileID: 1209394043}
+  - {fileID: 1357163597}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619394800
@@ -1914,9 +1915,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aiSettings:
-    personality: 0
+    personality: 2
     difficulty: 2
-    thinkingTime: 2
+    thinkingTime: 1
     showThinking: 1
     aggressiveness: 0.5
   computerName: Computer
@@ -2008,6 +2009,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1357163596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1357163597}
+  - component: {fileID: 1357163598}
+  m_Layer: 0
+  m_Name: Inputs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1357163597
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1357163596}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 594190096}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1357163598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1357163596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1095dc9a6c604d2482da62143772cf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectRandomCardKey: 114
+  drawCardKey: 100
+  completeBettingKey: 98
+  showHandKey: 104
 --- !u!1 &1540202423
 GameObject:
   m_ObjectHideFlags: 0
@@ -2419,7 +2468,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -52.5}
+  m_AnchoredPosition: {x: 930.34814, y: -142.54974}
   m_SizeDelta: {x: 600, y: 105}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1986947097

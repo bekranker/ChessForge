@@ -157,11 +157,28 @@ public class GameManager : MonoBehaviour
         currentPlayer = 0;
         currentTurnTime = turnTimeLimit;
 
+        Debug.Log("🚀 Starting Chess Battle Phase - revealing all pieces...");
+        
         // Reveal all pieces that were hidden during deployment and betting
-        cardSystem.RevealAllPieces();
+        if (cardSystem != null)
+        {
+            cardSystem.RevealAllPieces();
+        }
+        else
+        {
+            Debug.LogError("❌ CardSystem is null! Cannot reveal pieces.");
+        }
 
-        chessCombat.StartBattle();
-        Debug.Log("Chess Battle Phase: Eliminate all enemy pieces!");
+        if (chessCombat != null)
+        {
+            chessCombat.StartBattle();
+        }
+        else
+        {
+            Debug.LogError("❌ ChessCombat is null! Cannot start battle.");
+        }
+        
+        Debug.Log("⚔️ Chess Battle Phase: Eliminate all enemy pieces!");
     }
 
     public void EndGame(int winnerPlayer)

@@ -127,16 +127,51 @@ public class CardSystem : MonoBehaviour
     {
         // Only allow selecting cards during card deployment phase
         if (gameManager.currentPhase != GamePhase.CardDeployment)
+        {
+            Debug.Log("Can only select cards during Card Deployment phase!");
             return;
+        }
 
         // Only allow current player to select their cards
         if (card.playerIndex != gameManager.currentPlayer)
+        {
+            Debug.Log("You can only select your own cards!");
             return;
+        }
+
+        // Only allow human player to select cards
+        if (card.playerIndex != 0)
+        {
+            Debug.Log("Only human player can select cards manually!");
+            return;
+        }
 
         selectedCard = card;
         UpdateHandUI();
+        UpdateAllCardVisuals(); // Update visual states of all cards
 
         Debug.Log($"Selected {card.pieceType} card");
+    }
+    
+    public void UpdateAllCardVisuals()
+    {
+        // Update visual state of all card visuals to reflect selection
+        for (int playerIndex = 0; playerIndex < 2; playerIndex++)
+        {
+            List<Card> hand = playerHands[playerIndex];
+            
+            foreach (Card card in hand)
+            {
+                if (card.visualGameObject != null)
+                {
+                    CardVisual cardVisual = card.visualGameObject.GetComponent<CardVisual>();
+                    if (cardVisual != null)
+                    {
+                        cardVisual.UpdateSelectionVisual();
+                    }
+                }
+            }
+        }
     }
 
     public bool SelectRandomCardFromCurrentPlayerHand()
@@ -165,6 +200,53 @@ public class CardSystem : MonoBehaviour
         SelectCard(randomCard);
 
         Debug.Log($"🎲 Player {currentPlayerIndex + 1} randomly selected: {randomCard.pieceType}");
+        return true;
+    }
+
+    public bool TryPlaceCardAtPosition(Card card, Vector2Int position)
+    {
+        Debug.Log($"🎯 TryPlaceCardAtPosition called: {card.pieceType} at ({position.x}, {position.y})");
+        
+        if (gameManager.currentPhase != GamePhase.CardDeployment)
+        {
+            Debug.Log("Can only place cards during Card Deployment phase!");
+            return false;
+        }
+
+        if (card == null)
+        {
+            Debug.Log("No card provided!");
+            return false;
+        }
+
+        // Check if position is valid for placement
+        Debug.Log($"🔍 Checking if can place piece at ({position.x}, {position.y}) for player {card.playerIndex}");
+        if (!boardManager.CanPlacePieceAt(position.x, position.y, card.playerIndex))
+        {
+            Debug.Log($"❌ Cannot place {card.pieceType} at position {position}!");
+            return false;
+        }
+
+        Debug.Log($"✅ Position ({position.x}, {position.y}) is valid, creating piece...");
+        
+        // Create piece from card
+        CreatePieceFromCard(card, position);
+
+        // Remove card from hand
+        playerHands[card.playerIndex].Remove(card);
+        
+        // Clear selection if this was the selected card
+        if (selectedCard == card)
+        {
+            selectedCard = null;
+        }
+
+        UpdateHandUI();
+
+        // End turn
+        gameManager.NextTurn();
+
+        Debug.Log($"✅ Successfully placed {card.pieceType} at ({position.x}, {position.y}) via drag & drop");
         return true;
     }
 
@@ -208,9 +290,12 @@ public class CardSystem : MonoBehaviour
 
         return true;
     }
+    
     GameObject pieceObject;
     void CreatePieceFromCard(Card card, Vector2Int position)
     {
+        Debug.Log($"🎭 CreatePieceFromCard: Creating {card.pieceType} piece at board position ({position.x}, {position.y})");
+        
         // Select appropriate prefab array based on player
         GameObject[] selectedPrefabs = card.playerIndex == 0 ? whiteCardPrefabs : blackCardPrefabs;
 
@@ -219,7 +304,7 @@ public class CardSystem : MonoBehaviour
         {
             pieceObject = Instantiate(selectedPrefabs[(int)card.pieceType], boardManager.piecesParent.transform);
         }
-        if (cardPrefab != null)
+        else if (cardPrefab != null)
         {
             // Fallback to generic card prefab
             pieceObject = Instantiate(cardPrefab, boardManager.piecesParent.transform);
@@ -242,13 +327,18 @@ public class CardSystem : MonoBehaviour
         // Set visual representation
         SetupPieceVisuals(pieceObject, card);
 
-        // Place on board
+        // Place on board - this should set the correct world position
+        Debug.Log($"🌍 Setting piece at board position ({position.x}, {position.y})");
         boardManager.SetPieceAt(position, pieceComponent);
+        
+        // Get the actual world position that was set
+        Vector3 worldPos = boardManager.GetWorldPosition(position);
+        Debug.Log($"🌍 Piece world position set to: {worldPos}");
 
         // Update visibility based on current game phase
         UpdateSinglePieceVisibility(pieceComponent);
 
-        Debug.Log($"Placed {card.pieceType} at {position}");
+        Debug.Log($"✅ Created piece {card.pieceType} at board position ({position.x}, {position.y}) with world position {worldPos}");
     }
 
     ChessPiece GetOrAddPieceComponent(GameObject pieceObject, PieceType type)
@@ -609,6 +699,21 @@ public class CardSystem : MonoBehaviour
             else
             {
                 Debug.Log($"ℹ️ No CardVisual component found - using prefab as-is");
+                
+                // Try to auto-setup the card prefab if it has the setup component
+                CardPrefabSetup setupComponent = cardVisual.GetComponent<CardPrefabSetup>();
+                if (setupComponent != null)
+                {
+                    setupComponent.SetupCardPrefab();
+                    
+                    // Try again to get the CardVisual component
+                    cardVisualComponent = cardVisual.GetComponent<CardVisual>();
+                    if (cardVisualComponent != null)
+                    {
+                        cardVisualComponent.SetCard(card);
+                        Debug.Log($"✅ Auto-setup card prefab and set card data");
+                    }
+                }
             }
         }
         else
@@ -780,16 +885,27 @@ public class CardSystem : MonoBehaviour
 
     public void RevealAllPieces()
     {
+        Debug.Log("🔍 RevealAllPieces called - revealing all pieces for Chess Battle phase");
+        
         // Reveal all hidden pieces when Chess Battle phase starts
         List<ChessPiece> allPieces = boardManager.GetAllPiecesForPlayer(0);
         allPieces.AddRange(boardManager.GetAllPiecesForPlayer(1));
 
+        Debug.Log($"🔍 Found {allPieces.Count} total pieces to reveal");
+
         foreach (ChessPiece piece in allPieces)
         {
-            RevealPiece(piece.gameObject);
+            if (piece != null)
+            {
+                Debug.Log($"🔍 Revealing piece: {piece.pieceType} (Player {piece.playerIndex + 1}) at {piece.boardPosition}");
+                RevealPiece(piece.gameObject);
+            }
         }
 
-        Debug.Log("All pieces revealed for Chess Battle phase!");
+        // Also force update all piece visibility to ensure consistency
+        UpdatePieceVisibility();
+
+        Debug.Log("✅ All pieces revealed for Chess Battle phase!");
     }
 
     public void UpdatePieceVisibility()
@@ -840,6 +956,8 @@ public class CardSystem : MonoBehaviour
 
     void RevealPiece(GameObject pieceObject)
     {
+        if (pieceObject == null) return;
+        
         SpriteRenderer spriteRenderer = pieceObject.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
@@ -853,11 +971,19 @@ public class CardSystem : MonoBehaviour
             {
                 pieceObject.name = pieceObject.name.Replace("_HIDDEN", "");
             }
+            
+            Debug.Log($"✅ Revealed piece: {pieceObject.name} (Alpha: {color.a})");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ No SpriteRenderer found on piece: {pieceObject.name}");
         }
     }
 
     void HidePiece(GameObject pieceObject)
     {
+        if (pieceObject == null) return;
+        
         SpriteRenderer spriteRenderer = pieceObject.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
@@ -871,6 +997,12 @@ public class CardSystem : MonoBehaviour
             {
                 pieceObject.name += "_HIDDEN";
             }
+            
+            Debug.Log($"🙈 Hidden piece: {pieceObject.name} (Alpha: {color.a})");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ No SpriteRenderer found on piece: {pieceObject.name}");
         }
     }
 
