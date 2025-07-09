@@ -1,0 +1,1370 @@
+ZeplinPrototipe - Complete Project Guide
+A comprehensive developer's guide to understanding the ZeplinPrototipe Unity card battle game
+🎮 Project Overview
+ZeplinPrototipe is a turn-based card battle game featuring zeppelin aerial combat with resource management mechanics. Players command a crew aboard a zeppelin, manage four types of resources (Scrap, Water, Energy, Plant), and engage in grid-based tactical battles against enemy forces through strategic card placement and action execution.
+Technical Foundation:
+Unity Version: 6000.0 (Unity 6)
+Render Pipeline: Universal Render Pipeline (URP) 17.0.3
+Architecture: Manager-based singleton pattern with event-driven communication
+Save System: Easy Save 3 integration for persistence
+UI Framework: UGUI with DOTween animations
+
+🏗️ Core Architecture
+Manager Hierarchy
+The game uses a centralized manager system where each major system is controlled by a singleton manager:
+ManagerPrimary ResponsibilityKey DependenciesTurnManagerControls turn-based game flowBattleManager, event systemBattleManagerHandles combat calculations and targetingGridManager, UnitScriptCardManagerManages hand, deck, and card lifecycleDeckManager, CardRendererDeckManagerHandles deck persistence and craftingEasy Save 3, StarterDatasGridManagerManages unit placement on battle gridPosition validation logicStageManagerControls level progressionSave system, enemy spawningHealthManagerTracks player health and oxygenUI updates, game over conditions
+Event-Driven Communication
+The managers communicate through a robust event system:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+// Core events that connect systems
+public static event Action<GameObject> OnCardPressed;
+public static event Action<GameObject> OnPlayerCardPlaced;
+public static event Action<UnitScript> OnUnitSpawned;
+public static event Action OnPlayerTurnStart;
+
+🃏 Card System Architecture
+Card Data Structure
+Cards use a hybrid ScriptableObject + runtime instance approach:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+[CreateAssetMenu(fileName = "CardSo", menuName = "Scriptable Objects/CardSo")]
+public class CardSo : ScriptableObject
+{
+public string CardName;
+public CardType cardType; // Unit, Resource, Ability
+public Sprite CardSprite;
+public ResourceType ResourceType; // For resource cards
+public int Health; // For unit cards
+public int AttackTimer; // Turn-based timing
+public List<ActionBase> StarterActions; // Initial abilities
+public bool isMainCharacter; // Player character flag
+public bool isLockpickable; // Special interaction flag
+}
+
+Runtime Wrapper:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+[System.Serializable]
+public class CardDataSave
+{
+public CardSo CardData; // Reference to ScriptableObject
+public List<ActionBase> Actions; // Runtime-modified actions
+}
+
+Card Types & Functionality
+Card TypePurposePlacement RulesRuntime BehaviorUnitCombat entitiesMust be placed on grid positionsHealth tracking, action execution, turn managementResourceEconomy fuelCan be added to existing unitsResource generation, consumed on useAbilitySpecial actionsSingle-use from handImmediate effects, strategic options
+Card Lifecycle
+Creation: Instantiated from CardSo data
+Hand Management: Stored in CardManager.cardsInHand
+Placement: Validated through CardGrid component
+Runtime: Actions execute through UnitScript
+Destruction: Cleanup through FeelManager with animations
+
+⚔️ Battle System
+Combat Flow
+The BattleManager orchestrates all combat through a sophisticated targeting system:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public void CalculateAttack(UnitScript attacker, int Damage, TargetType targetType, AttackActionBase LastAttack)
+{
+var targets = CalculateTarget(attacker, targetType);
+// Executes visual attack sequence with damage calculation
+StartCoroutine(Attack(attacker, Damage, targets));
+}
+
+Targeting System
+Target TypeBehaviorUse CasesSelectionFrontPlayer selects enemy targetPrecise targeting abilitiesFrontDirect forward grid positionBasic attacksAllFrontAll front-row enemiesArea-of-effect abilitiesDiagonalAdjacent diagonal positionsFlanking attacksRandomRandomly selected enemyChaotic effectsAllFriendlyAll allied unitsBuff/healing abilities
+Grid-Based Positioning
+The GridManager maintains a dictionary-based grid system:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+private Dictionary<Vector2, UnitScript> Grids = new Dictionary<Vector2, UnitScript>()
+{
+{ new Vector2(0, 0), null }, // Player front-left
+{ new Vector2(1, 0), null }, // Player front-center  
+ { new Vector2(-1, 0), null }, // Player front-right
+{ new Vector2(0, 1), null }, // Enemy front-left
+{ new Vector2(1, 1), null }, // Enemy front-center
+{ new Vector2(-1, 1), null }, // Enemy front-right
+{ new Vector2(2, 1), null }, // Enemy extended position
+};
+
+Grid Interaction:
+CardGrid.cs handles placement validation and visual feedback
+Mouse hover detection for placement zones
+Resource addition to existing units
+Card movement between grid positions
+
+🔄 Turn Management
+State Machine Pattern
+The turn system implements a polymorphic state pattern:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public abstract class Turn
+{
+protected readonly TurnManager \_turnManager;
+
+    public abstract void InvokeTurn();
+    public abstract void Update();
+    public abstract void EndOfTurn();
+    public abstract void NextTurn();
+
+}
+
+Turn Types & Flow
+Turn TypePurposeDurationTransition TriggerMainCardPlacementInitial character placementUntil main card placedCard placement eventPlayerDrawTurnResource/card acquisitionUntil deck limit reachedDeck interactionPlayerBattleTurnAction execution phaseManual progressionPlayer inputEnemyTurnAI-controlled actionsAutomaticAll enemies processedBetweenStageTurnStage transitionManual/automaticStage completion
+AI Enemy Behavior
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+IEnumerator EnemyAi()
+{
+for (int i = 0; i < 4; i++) // Check all enemy positions
+{
+if (GridManager.Instance.GetGrid(new Vector2(i - 1, 1)).Item1 != null)
+{
+CurrentEnemy = GridManager.Instance.GetGrid(new Vector2(i - 1, 1)).Item1;
+CurrentEnemy.DegreaseTurn(); // Process enemy turn
+yield return new WaitUntil(() => !\_turnManager.isAiIsPlaying);
+}
+}
+EndOfTurn();
+}
+
+💎 Resource Management
+Resource Types & Economy
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public enum ResourceType
+{
+NoType,
+Scrap, // Mechanical repairs and upgrades
+Water, // Life support and cooling systems
+Energy, // Power systems and special abilities
+Plant, // Organic components and healing
+ResourceCount
+}
+
+Dynamic Resource Display
+The UnitScript manages resource visualization with automatic UI generation:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public void AddResource(ResourceType resourceType, int value = 1)
+{
+Resources[resourceType] += value;
+
+    if (!resourceDisplays.ContainsKey(resourceType))
+    {
+        // Spawn new UI element for first-time resources
+        GameObject go = Instantiate(ImagePrefab, ImageParent);
+        Image img = go.GetComponent<Image>();
+        img.sprite = _resourceIcons.Icons[resourceType];
+
+        // Configure text display
+        TextMeshProUGUI countText = go.GetComponentInChildren<TextMeshProUGUI>();
+        resourceDisplays[resourceType] = new ResourceDisplay
+        {
+            image = img,
+            countText = countText
+        };
+    }
+
+    // Update displayed count
+    resourceDisplays[resourceType].countText.text = Resources[resourceType].ToString();
+
+}
+
+Global Resource Tracking
+The ZeppelinResourceDisplayer provides ship-level resource monitoring:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+\_resourceText.text = \_scrapCount + IconWriter.Write(IconNames.Scrap) + " " +
+\_waterCount + IconWriter.Write(IconNames.Water) + " " +
+\_energyCount + IconWriter.Write(IconNames.Energy) + " " +
+\_plantCount + IconWriter.Write(IconNames.Plant);
+
+🎯 Action & Effect System
+Action Architecture
+Actions are ScriptableObject-based with polymorphic execution:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public abstract class ActionBase : ScriptableObject
+{
+public string actionName;
+public int value;
+public int CoolDown;
+public TargetType TargetType;
+public ActionType actionType; // Active or Passive
+public SerializedDictionary<ResourceType, int> RequiredResources;
+
+    public abstract void Execute();        // Implemented by derived classes
+
+}
+
+Resource Cost Validation
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public bool CompareResources()
+{
+if (CurrentCoolDown != 0) return false;
+
+    if (effectHandler.Effects.Any(x => x is FreeResourceEffect))
+        return true;
+
+    for (int i = 1; i < (int)ResourceType.ResourceCount; i++)
+    {
+        if (RequiredResources[(ResourceType)i] > unitScript.Resources[(ResourceType)i])
+            return false;
+    }
+    return true;
+
+}
+
+Effect Handler System
+Temporary modifications are managed through EffectHandler:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public class EffectHandler : MonoBehaviour
+{
+public List<EffectBase> Effects = new List<EffectBase>();
+
+    public void AddEffect(EffectBase effect)
+    {
+        Effects.Add(effect);
+        effect.Apply(this);  // Apply temporary modifications
+    }
+
+    public void RemoveEffect(EffectBase effect)
+    {
+        effect.Remove(this); // Remove temporary modifications
+        Effects.Remove(effect);
+    }
+
+}
+
+💾 Save System & Persistence
+Easy Save 3 Integration
+The project uses Easy Save 3 for robust data persistence:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+// Example save operation in DeckManager
+public void SaveDeck()
+{
+DeckLoader.SaveDeck(DeckManager.instance);
+}
+
+// Example load operation
+void LoadDeck()
+{
+if (DeckLoader.IsKeyExitst("\_cardsInDeck"))
+{
+DeckLoader.LoadDeck(DeckManager.instance);
+return;
+}
+// Fallback to starter data initialization
+LoadStarterData();
+}
+
+Data Persistence Structure
+Deck State: Card compositions and action modifications
+Stage Progress: Current stage and completion status
+Resource State: Current resource counts and zeppelin health
+Settings: User preferences and configuration
+
+Starter Data Configuration
+The StarterDatas ScriptableObject centralizes initial game state:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public class StarterDatas : ScriptableObject
+{
+public List<CardSo> StarterCardsInDeck;
+public List<CardSo> StarterCardsInStorage;
+public IndexableDictionary<ActionBase, int> StarterCraftableAcitons;
+public IndexableDictionary<CardSo, int> StarterCraftableCards;
+}
+
+🎯 Stage Management & Progression
+Stage Data Structure
+Stages are defined through StageData ScriptableObjects:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+[CreateAssetMenu(fileName = "StageData", menuName = "Scriptable Objects/StageData")]
+public class StageData : SerializedScriptableObject
+{
+public Dictionary<int, List<CardSo>> Grids = new Dictionary<int, List<CardSo>>()
+{
+{0, new List<CardSo>() }, // Enemy position 0
+{1, new List<CardSo>() }, // Enemy position 1  
+ {2, new List<CardSo>() }, // Enemy position 2
+{3, new List<CardSo>() }, // Enemy position 3
+};
+}
+
+Victory & Progression Logic
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+void EnemyDestroyed(GameObject enemy)
+{
+if (unitScript.isEnemy)
+{
+EnemyCount--;
+
+        if (EnemyCount == 0)
+        {
+            OnAllEnemyDie();  // Trigger stage completion
+        }
+    }
+
+}
+
+Stage Transition Flow
+Battle Completion: All enemies defeated
+Between Stage Turn: Player choice phase
+Continue/Escape: Stage progression or retreat
+New Stage Loading: Enemy deck refresh and spawning
+
+🖼️ UI Framework & Visual Systems
+Canvas Architecture
+Multi-canvas setup for performance optimization:
+CanvasPurposeRender ModeSorting OrderHandCanvasPlayer hand displayScreen Space - OverlayHighPlayAreaCanvasBattle grid and unitsScreen Space - CameraVariableEventCanvasEvent dialogsScreen Space - OverlayHighestInGameUIHUD elementsScreen Space - OverlayMedium
+Visual Effects System
+The CardBlackEffect provides dynamic visual feedback:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public void ChangeValue(float value, float time = 0.3f)
+{
+BlackValue = Mathf.Clamp01(value);
+Color targetColor = Color.Lerp(Color.white, Color.black, BlackValue);
+
+    foreach (var image in ImagesToBlack)
+    {
+        if (image != null)
+        {
+            image.DOKill();  // Prevent tween conflicts
+            image.DOColor(targetColor, time);
+        }
+    }
+
+}
+
+Card Interaction System
+The CardHoldingSystem manages drag-and-drop operations with validation:
+Grid-to-grid movement for repositioning
+Hand-to-grid placement for new cards
+Resource-to-unit assignment for upgrades
+
+🏥 Health & Game State Management
+Health Manager
+The HealthManager tracks critical player resources:
+Plain text
+ANTLR4
+Bash
+C
+C#
+CSS
+CoffeeScript
+CMake
+Dart
+Django
+Docker
+EJS
+Erlang
+Git
+Go
+GraphQL
+Groovy
+HTML
+Java
+JavaScript
+JSON
+JSX
+Kotlin
+LaTeX
+Less
+Lua
+Makefile
+Markdown
+MATLAB
+Markup
+Objective-C
+Perl
+PHP
+PowerShell
+.properties
+Protocol Buffers
+Python
+R
+Ruby
+Sass (Sass)
+Sass (Scss)
+Scheme
+SQL
+Shell
+Swift
+SVG
+TSX
+TypeScript
+WebAssembly
+YAML
+XML
+
+public void ChangeShipHealth(int value)
+{
+ShipHealth += value;
+\_shipHealthnBar.fillAmount = (float)ShipHealth / MaxShipHealth;
+
+    if (ShipHealth <= 0)
+    {
+        StageManager.instance.LoseFight();
+    }
+
+}
+
+public void ChangeOxygen(int value)
+{
+Oxygen += value;
+\_oxygenBar.fillAmount = (float)Oxygen / MaxOxygen;
+}
+
+Game Over Conditions
+Ship Health: Reaches zero from enemy attacks
+Main Character Death: Player's primary unit destroyed
+Oxygen Depletion: Ongoing damage until replenished
+
+🔧 Development Considerations
+Performance Optimizations
+Object Pooling: Consider for frequently instantiated cards and UI elements
+Event Cleanup: Proper subscription/unsubscription in OnEnable/OnDisable
+Canvas Optimization: Separate static and dynamic UI elements
+Memory Management: ScriptableObject references to minimize duplication
+
+Extensibility Points
+SystemExtension MethodImplementation StrategyCard TypesNew CardType enum valuesPolymorphic card behavior through inheritanceResource TypesAdditional ResourceType entriesDictionary-based resource system scales automaticallyTarget TypesNew targeting patternsExtend BattleManager.CalculateTarget()methodTurn TypesCustom turn behaviorsInherit from Turn abstract classActionsNew ability typesDerive from ActionBase ScriptableObject
+Code Quality & Patterns
+Singleton Pattern: Used appropriately for global managers
+State Machine: Clean turn management with polymorphic behavior
+Event-Driven Architecture: Loose coupling between systems
+Data-Driven Design: ScriptableObjects for designer accessibility
+Resource Management: Efficient dictionary-based tracking
+
+🚀 Getting Started as a Developer
+Project Navigation
+/Assets/Scripts/ - All gameplay logic and managers
+/Assets/ScriptableObjects/ - Data definitions and configurations
+/Assets/Scenes/BattleScene.unity - Main gameplay scene
+/Assets/Prefabs/ - Reusable GameObject templates
+
+Key Entry Points
+TurnManager.cs - Start here to understand game flow
+CardManager.cs - Learn card lifecycle and hand management
+BattleManager.cs - Combat calculations and targeting
+UnitScript.cs - Individual unit behavior and resource management
+CardSo.cs - Card data structure and ScriptableObject setup
+
+Essential Understanding
+Turn Flow: MainCardPlacement → PlayerDrawTu...n → PlayerBattleTurn → EnemyTurn
+Card Lifecycle: ScriptableObject → CardDataSave ...untime Instance → Grid Placement
+Resource Flow: Collection → Validation → Consumption → UI Update
+Combat Flow: Target Selection → Damage Calcul...→ Visual Feedback → State Update
+
+This architecture provides a solid foundation for a scalable card battle game with clear separation of concerns, robust data management, and extensible systems for future development.
