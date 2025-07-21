@@ -805,7 +805,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baff1167aba514c54a7b3c08a34dbc76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Deck: []
+  Deck:
+  - {fileID: 5521386154784459499, guid: 9730630101e184cceb387c4dd4f9dd35, type: 3}
+  - {fileID: 5521386154784459499, guid: c643c7098e0ae4f1e80665e94516d67c, type: 3}
+  - {fileID: 5521386154784459499, guid: 37f07ca88123a468ca282eee0c9da6c9, type: 3}
+  - {fileID: 5521386154784459499, guid: bf6076edcd1e244a980d489ddaf5c85e, type: 3}
+  - {fileID: 5521386154784459499, guid: 971c46a4e2d684d2facfacc72f11847a, type: 3}
+  - {fileID: 5521386154784459499, guid: 877f9e097c862448fb4171afaac8b4f0, type: 3}
   _handPoint: {fileID: 1042600321}
   _chessBoard: {fileID: 2098805137}
 --- !u!1 &579335042

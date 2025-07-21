@@ -787,7 +787,7 @@ GameObject:
   - component: {fileID: 4232889526229053950}
   - component: {fileID: 8213933251042597267}
   m_Layer: 6
-  m_Name: Cart
+  m_Name: King
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -879,7 +879,7 @@ MonoBehaviour:
   _symbols:
   - {fileID: 2766120330943661892}
   - {fileID: 5851619633930049933}
-  _data: {fileID: 11400000, guid: e8acb5133b08b41fca5e4d173d953e62, type: 2}
+  _data: {fileID: 11400000, guid: c10f3ac118c354e8a9dcebf01c50a6d4, type: 2}
 --- !u!210 &4232889526229053950
 SortingGroup:
   m_ObjectHideFlags: 0
