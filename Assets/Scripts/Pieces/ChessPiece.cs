@@ -1,148 +1,150 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum PieceType
-{
-    Pawn, Rook, Knight, Bishop, Queen, King
-}
-
 public abstract class ChessPiece : MonoBehaviour
 {
     [Header("Piece Properties")]
+    public PieceColor pieceColor;
     public PieceType pieceType;
-    public int playerIndex; // 0 or 1
     public Vector2Int boardPosition;
     public bool hasMoved = false;
     
-    [Header("Betting")]
-    public int coinsOnPiece = 0;
+    [Header("Movement")]
+    public float moveSpeed = 5f;
     
-    [Header("Visual")]
-    public SpriteRenderer spriteRenderer;
+    protected ChessBoard chessBoard;
+    protected bool isSelected = false;
     
-    protected BoardManager boardManager;
-    protected GameManager gameManager;
-    
-    public virtual void Initialize(PieceType type, int player, Vector2Int position, BoardManager board, GameManager game)
+    public enum PieceColor
     {
-        pieceType = type;
-        playerIndex = player;
-        boardPosition = position;
-        boardManager = board;
-        gameManager = game;
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        hasMoved = false;
-        coinsOnPiece = 0;
+        White,
+        Black
+    }
+    
+    public enum PieceType
+    {
+        Pawn,
+        Rook,
+        Knight,
+        Bishop,
+        Queen,
+        King
+    }
+    
+    protected virtual void Start()
+    {
+        chessBoard = FindFirstObjectByType<ChessBoard>();
+        if (chessBoard == null)
+        {
+            Debug.LogError("ChessBoard not found in scene!");
+        }
     }
     
     public abstract List<Vector2Int> GetValidMoves();
     
     public virtual bool CanMoveTo(Vector2Int targetPosition)
     {
-        if (!IsPositionOnBoard(targetPosition))
-            return false;
-            
-        ChessPiece targetPiece = boardManager.GetPieceAt(targetPosition);
-        
-        // Cannot move to a square occupied by own piece
-        if (targetPiece != null && targetPiece.playerIndex == playerIndex)
-            return false;
-            
-        return GetValidMoves().Contains(targetPosition);
+        List<Vector2Int> validMoves = GetValidMoves();
+        return validMoves.Contains(targetPosition);
     }
     
-    public virtual void MoveTo(Vector2Int newPosition)
+    public virtual bool MoveTo(Vector2Int targetPosition)
     {
-        boardPosition = newPosition;
-        hasMoved = true;
-        transform.position = boardManager.GetWorldPosition(newPosition);
-    }
-    
-    protected bool IsPositionOnBoard(Vector2Int position)
-    {
-        return boardManager.IsValidPosition(position);
-    }
-    
-    protected bool IsPathClear(Vector2Int start, Vector2Int end)
-    {
-        Vector2Int direction = new Vector2Int(
-            end.x > start.x ? 1 : end.x < start.x ? -1 : 0,
-            end.y > start.y ? 1 : end.y < start.y ? -1 : 0
-        );
-        
-        Vector2Int current = start + direction;
-        while (current != end)
+        if (!CanMoveTo(targetPosition))
         {
-            if (boardManager.GetPieceAt(current) != null)
-                return false;
-            current += direction;
+            return false;
         }
+        
+        ChessPiece targetPiece = chessBoard.GetPieceAt(targetPosition);
+        if (targetPiece != null && targetPiece.pieceColor != pieceColor)
+        {
+            Capture(targetPiece);
+        }
+        
+        Vector2Int oldPosition = boardPosition;
+        boardPosition = targetPosition;
+        hasMoved = true;
+        
+        chessBoard.UpdatePiecePosition(this, oldPosition, targetPosition);
+        
+        Vector3 worldPosition = chessBoard.BoardToWorldPosition(targetPosition);
+        transform.position = worldPosition;
+        
         return true;
     }
     
-    protected List<Vector2Int> GetLinearMoves(Vector2Int[] directions, bool limitToOneStep = false)
+    public virtual void Capture(ChessPiece targetPiece)
     {
-        List<Vector2Int> moves = new List<Vector2Int>();
-        
-        foreach (Vector2Int direction in directions)
+        if (targetPiece != null)
         {
-            int maxDistance = limitToOneStep ? 1 : Mathf.Max(boardManager.boardWidth, boardManager.boardHeight);
+            chessBoard.RemovePiece(targetPiece);
+            Destroy(targetPiece.gameObject);
+        }
+    }
+    
+    public virtual bool IsValidMove(Vector2Int from, Vector2Int to)
+    {
+        if (!chessBoard.IsValidPosition(to))
+            return false;
             
-            for (int i = 1; i <= maxDistance; i++)
-            {
-                Vector2Int newPos = boardPosition + direction * i;
-                
-                if (!IsPositionOnBoard(newPos))
-                    break;
-                    
-                ChessPiece targetPiece = boardManager.GetPieceAt(newPos);
-                if (targetPiece != null)
-                {
-                    // Can capture enemy piece
-                    if (targetPiece.playerIndex != playerIndex)
-                        moves.Add(newPos);
-                    break;
-                }
-                
-                moves.Add(newPos);
-                
-                if (limitToOneStep)
-                    break;
-            }
+        ChessPiece targetPiece = chessBoard.GetPieceAt(to);
+        if (targetPiece != null && targetPiece.pieceColor == pieceColor)
+            return false;
+            
+        return true;
+    }
+    
+    protected bool IsPathClear(Vector2Int from, Vector2Int to)
+    {
+        Vector2Int direction = new Vector2Int(
+            to.x != from.x ? (to.x > from.x ? 1 : -1) : 0,
+            to.y != from.y ? (to.y > from.y ? 1 : -1) : 0
+        );
+        
+        Vector2Int current = from + direction;
+        
+        while (current != to)
+        {
+            if (chessBoard.GetPieceAt(current) != null)
+                return false;
+            current += direction;
         }
         
-        return moves;
+        return true;
     }
     
-    public void SetCoinsOnPiece(int coins)
+    public virtual void OnPieceSelected()
     {
-        coinsOnPiece = coins;
-        Debug.Log($"{pieceType} at {boardPosition} has {coins} coins bet on it");
+        isSelected = true;
+        ShowValidMoves();
     }
     
-    public int GetCoinsOnPiece()
+    public virtual void OnPieceDeselected()
     {
-        return coinsOnPiece;
+        isSelected = false;
+        HideValidMoves();
     }
     
-    // Visual feedback for piece selection
-    public void SetSelected(bool selected)
+    protected virtual void ShowValidMoves()
     {
-        if (spriteRenderer != null)
+        List<Vector2Int> validMoves = GetValidMoves();
+        if (chessBoard != null)
         {
-            spriteRenderer.color = selected ? Color.yellow : (playerIndex == 0 ? Color.white : Color.black);
+            chessBoard.HighlightValidMoves(validMoves);
         }
     }
     
-    void OnMouseDown()
+    protected virtual void HideValidMoves()
     {
-        if (gameManager.currentPhase == GamePhase.ChessBattle)
+        if (chessBoard != null)
         {
-            ChessCombat chessCombat = FindObjectOfType<ChessCombat>();
-            if (chessCombat != null)
-            {
-                chessCombat.HandlePieceClick(this);
-            }
+            chessBoard.ClearHighlights();
         }
+    }
+    
+    public virtual bool IsAttackingSquare(Vector2Int square)
+    {
+        List<Vector2Int> validMoves = GetValidMoves();
+        return validMoves.Contains(square);
     }
 }

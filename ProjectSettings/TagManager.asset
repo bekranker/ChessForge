@@ -11,8 +11,8 @@ TagManager:
   - Board
   - Water
   - UI
-  - 
-  - 
+  - Draggable
+  - Tile
   - 
   - 
   - 
@@ -38,6 +38,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BG Canvas
+    uniqueID: 1021045077
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
@@ -47,8 +50,14 @@ TagManager:
   - name: Pieces
     uniqueID: 3083652699
     locked: 0
+  - name: Carts
+    uniqueID: 85133707
+    locked: 0
   - name: Canvas
     uniqueID: 993398819
+    locked: 0
+  - name: Cursor
+    uniqueID: 3743713549
     locked: 0
   m_RenderingLayers:
   - Default

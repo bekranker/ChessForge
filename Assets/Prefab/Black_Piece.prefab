@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3331021935795827099}
   - component: {fileID: 8948788126555529764}
-  - component: {fileID: 8069048458727255282}
   - component: {fileID: 7046632583439261720}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Black_Piece
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: -1161747025
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 5484dc29774794a48989ece9042c3ace, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a2a21674c95f04282ae743e136ff1e41, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -89,24 +88,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8069048458727255282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9172335467110173797}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93e143c679cf74924b5b7c03bf74b58a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  x: 0
-  y: 0
-  boardManager: {fileID: 0}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  validDropColor: {r: 0, g: 1, b: 0, a: 1}
-  invalidDropColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!61 &7046632583439261720
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -145,7 +126,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.72333336, y: 0.72}
+    oldSize: {x: 0.82461536, y: 0.82461536}
     newSize: {x: 0.112676054, y: 0.112676054}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

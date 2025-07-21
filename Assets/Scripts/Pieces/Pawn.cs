@@ -3,49 +3,107 @@ using System.Collections.Generic;
 
 public class Pawn : ChessPiece
 {
+    protected override void Start()
+    {
+        base.Start();
+        pieceType = PieceType.Pawn;
+    }
+
     public override List<Vector2Int> GetValidMoves()
     {
-        List<Vector2Int> moves = new List<Vector2Int>();
-        
-        // Pawn direction depends on player (Player 0 moves up, Player 1 moves down)
-        int direction = playerIndex == 0 ? 1 : -1;
-        
-        // Forward movement
+        List<Vector2Int> validMoves = new List<Vector2Int>();
+
+        int direction = pieceColor == PieceColor.White ? 1 : -1;
         Vector2Int oneStep = boardPosition + new Vector2Int(0, direction);
-        if (IsPositionOnBoard(oneStep) && boardManager.GetPieceAt(oneStep) == null)
+        Vector2Int twoStep = boardPosition + new Vector2Int(0, direction * 2);
+
+        // Forward movement
+        if (chessBoard.IsValidPosition(oneStep) && chessBoard.GetPieceAt(oneStep) == null)
         {
-            moves.Add(oneStep);
-            
-            // Two-step move from starting position
-            if (!hasMoved)
+            validMoves.Add(oneStep);
+
+            // Two squares forward if hasn't moved
+            if (!hasMoved && chessBoard.IsValidPosition(twoStep) && chessBoard.GetPieceAt(twoStep) == null)
             {
-                Vector2Int twoStep = boardPosition + new Vector2Int(0, direction * 2);
-                if (IsPositionOnBoard(twoStep) && boardManager.GetPieceAt(twoStep) == null)
-                {
-                    moves.Add(twoStep);
-                }
+                validMoves.Add(twoStep);
             }
         }
-        
+
         // Diagonal captures
-        Vector2Int[] captureDirections = {
-            new Vector2Int(-1, direction),
-            new Vector2Int(1, direction)
-        };
-        
-        foreach (Vector2Int captureDir in captureDirections)
+        Vector2Int leftCapture = boardPosition + new Vector2Int(-1, direction);
+        Vector2Int rightCapture = boardPosition + new Vector2Int(1, direction);
+
+        if (chessBoard.IsValidPosition(leftCapture))
         {
-            Vector2Int capturePos = boardPosition + captureDir;
-            if (IsPositionOnBoard(capturePos))
+            ChessPiece leftPiece = chessBoard.GetPieceAt(leftCapture);
+            if (leftPiece != null && leftPiece.pieceColor != pieceColor)
             {
-                ChessPiece targetPiece = boardManager.GetPieceAt(capturePos);
-                if (targetPiece != null && targetPiece.playerIndex != playerIndex)
+                validMoves.Add(leftCapture);
+            }
+        }
+
+        if (chessBoard.IsValidPosition(rightCapture))
+        {
+            ChessPiece rightPiece = chessBoard.GetPieceAt(rightCapture);
+            if (rightPiece != null && rightPiece.pieceColor != pieceColor)
+            {
+                validMoves.Add(rightCapture);
+            }
+        }
+
+        // En passant (simplified - can be expanded)
+        CheckEnPassant(validMoves, direction);
+
+        return validMoves;
+    }
+
+    private void CheckEnPassant(List<Vector2Int> validMoves, int direction)
+    {
+        // Check left en passant
+        Vector2Int leftAdjacent = boardPosition + new Vector2Int(-1, 0);
+        if (chessBoard.IsValidPosition(leftAdjacent))
+        {
+            ChessPiece leftPiece = chessBoard.GetPieceAt(leftAdjacent);
+            if (leftPiece is Pawn && leftPiece.pieceColor != pieceColor)
+            {
+                Pawn leftPawn = leftPiece as Pawn;
+                if (CanEnPassant(leftPawn))
                 {
-                    moves.Add(capturePos);
+                    validMoves.Add(boardPosition + new Vector2Int(-1, direction));
                 }
             }
         }
-        
-        return moves;
+
+        // Check right en passant
+        Vector2Int rightAdjacent = boardPosition + new Vector2Int(1, 0);
+        if (chessBoard.IsValidPosition(rightAdjacent))
+        {
+            ChessPiece rightPiece = chessBoard.GetPieceAt(rightAdjacent);
+            if (rightPiece is Pawn && rightPiece.pieceColor != pieceColor)
+            {
+                Pawn rightPawn = rightPiece as Pawn;
+                if (CanEnPassant(rightPawn))
+                {
+                    validMoves.Add(boardPosition + new Vector2Int(1, direction));
+                }
+            }
+        }
+    }
+
+    private bool CanEnPassant(Pawn targetPawn)
+    {
+        // Simplified en passant check - can be expanded with game state tracking
+        return targetPawn.hasMoved && Mathf.Abs(targetPawn.boardPosition.y - GetStartingRow()) == 2;
+    }
+
+    private int GetStartingRow()
+    {
+        return pieceColor == PieceColor.White ? 1 : 6;
+    }
+
+    public override bool MoveTo(Vector2Int targetPosition)
+    {
+        bool moved = base.MoveTo(targetPosition);
+        return moved;
     }
 }
