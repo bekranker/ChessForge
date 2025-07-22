@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: King
   m_EditorClassIdentifier: 
   Name: K
-  Icon: {fileID: 21300000, guid: 4a55838b91bbc47e09bfcd2415e8d3f9, type: 3}
-  WhitePiecePrefab: {fileID: 1262766266976366027, guid: 0ab4d2d951e8c4ee29fa9894dd85f6b3, type: 3}
-  BlackPiecePrefab: {fileID: 7421230216616885543, guid: 31feeca6a8409460cb06733663185e73, type: 3}
+  IconWhite: {fileID: 21300000, guid: 4a55838b91bbc47e09bfcd2415e8d3f9, type: 3}
+  IconBlack: {fileID: 21300000, guid: 1c175b4edd3054e9fbe74aa86176be7f, type: 3}
+  PiecePrefab: {fileID: 1262766266976366027, guid: 0ab4d2d951e8c4ee29fa9894dd85f6b3, type: 3}

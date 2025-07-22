@@ -13,7 +13,7 @@ public class Pawn : ChessPiece
     {
         List<Vector2Int> validMoves = new List<Vector2Int>();
 
-        int direction = pieceColor == PieceColor.White ? 1 : -1;
+        int direction = pieceColor == PlayerColors.White ? 1 : -1;
         Vector2Int oneStep = boardPosition + new Vector2Int(0, direction);
         Vector2Int twoStep = boardPosition + new Vector2Int(0, direction * 2);
 
@@ -98,7 +98,7 @@ public class Pawn : ChessPiece
 
     private int GetStartingRow()
     {
-        return pieceColor == PieceColor.White ? 1 : 6;
+        return pieceColor == PlayerColors.White ? 1 : 6;
     }
 
     public override bool MoveTo(Vector2Int targetPosition)

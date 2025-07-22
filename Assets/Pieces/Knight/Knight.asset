@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Knight
   m_EditorClassIdentifier: 
   Name: K
-  Icon: {fileID: 21300000, guid: 911e0125e616c440e8e5f6c7caef0348, type: 3}
-  WhitePiecePrefab: {fileID: 4342464382581530627, guid: 5f2ae2715a63d4a6e870b948dc4b8992, type: 3}
-  BlackPiecePrefab: {fileID: 4681858055350588359, guid: 749839e081f78457eaaf1cc3f852c70d, type: 3}
+  IconWhite: {fileID: 21300000, guid: 911e0125e616c440e8e5f6c7caef0348, type: 3}
+  IconBlack: {fileID: 21300000, guid: 17a8333add5424ce381fc68ab6a1ecdb, type: 3}
+  PiecePrefab: {fileID: 4342464382581530627, guid: 5f2ae2715a63d4a6e870b948dc4b8992, type: 3}

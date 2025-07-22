@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Pawn
   m_EditorClassIdentifier: 
   Name: P
-  Icon: {fileID: 21300000, guid: 7773cbd6d53c24d46bb4635f2d852cbe, type: 3}
-  WhitePiecePrefab: {fileID: 4602068620494217265, guid: 32b1d801dfdca4365b8342498156affc, type: 3}
-  BlackPiecePrefab: {fileID: 5793044439962059199, guid: 1409ff4289b58481388e9102fa995485, type: 3}
+  IconWhite: {fileID: 21300000, guid: 7773cbd6d53c24d46bb4635f2d852cbe, type: 3}
+  IconBlack: {fileID: 21300000, guid: ebf9e3c5b89224630a24cad9ac69ca57, type: 3}
+  PiecePrefab: {fileID: 4602068620494217265, guid: 32b1d801dfdca4365b8342498156affc, type: 3}

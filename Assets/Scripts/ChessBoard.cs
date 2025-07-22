@@ -20,11 +20,12 @@ public class ChessBoard : MonoBehaviour
 
     [Header("Visual")]
     public GameObject highlightPrefab;
+    public Color FreeTileColor, OccupiedTileColor;
 
     public ChessPiece[,] board;
     private List<GameObject> highlightedSquares = new List<GameObject>();
     private List<TileConfig> tiles = new List<TileConfig>();
-    private ChessPiece.PieceColor currentPlayer = ChessPiece.PieceColor.White;
+    private PlayerColors currentPlayer = PlayerColors.White;
 
     public void Start()
     {
@@ -134,23 +135,6 @@ public class ChessBoard : MonoBehaviour
         }
     }
 
-    // private void CreatePiece(ChessPiece.PieceType pieceType, ChessPiece.PieceColor color, Vector2Int position, GameObject prefab)
-    // {
-    //     if (prefab == null) return;
-
-    //     Vector3 worldPosition = BoardToWorldPosition(position);
-    //     GameObject pieceObject = Instantiate(prefab, worldPosition, Quaternion.identity, transform);
-
-    //     ChessPiece piece = pieceObject.GetComponent<ChessPiece>();
-    //     if (piece != null)
-    //     {
-    //         piece.pieceColor = color;
-    //         piece.pieceType = pieceType;
-    //         piece.boardPosition = position;
-    //         board[position.x, position.y] = piece;
-    //     }
-    // }
-
     public TileConfig FindTile(GameObject tileObject)
     {
         foreach (TileConfig tile in tiles)
@@ -215,7 +199,7 @@ public class ChessBoard : MonoBehaviour
         }
     }
 
-    public List<ChessPiece> GetPiecesOfColor(ChessPiece.PieceColor color)
+    public List<ChessPiece> GetPiecesOfColor(PlayerColors color)
     {
         List<ChessPiece> pieces = new List<ChessPiece>();
 
@@ -262,17 +246,17 @@ public class ChessBoard : MonoBehaviour
 
     public void SwitchCurrentPlayer()
     {
-        currentPlayer = currentPlayer == ChessPiece.PieceColor.White ?
-                       ChessPiece.PieceColor.Black : ChessPiece.PieceColor.White;
+        currentPlayer = currentPlayer == PlayerColors.White ?
+                       PlayerColors.Black : PlayerColors.White;
     }
 
-    public bool IsInCheck(ChessPiece.PieceColor kingColor)
+    public bool IsInCheck(PlayerColors kingColor)
     {
         ChessPiece king = FindKing(kingColor);
         if (king == null) return false;
 
-        ChessPiece.PieceColor enemyColor = kingColor == ChessPiece.PieceColor.White ?
-                                          ChessPiece.PieceColor.Black : ChessPiece.PieceColor.White;
+        PlayerColors enemyColor = kingColor == PlayerColors.White ?
+                                          PlayerColors.Black : PlayerColors.White;
 
         List<ChessPiece> enemyPieces = GetPiecesOfColor(enemyColor);
 
@@ -287,7 +271,7 @@ public class ChessBoard : MonoBehaviour
         return false;
     }
 
-    public ChessPiece FindKing(ChessPiece.PieceColor color)
+    public ChessPiece FindKing(PlayerColors color)
     {
         for (int x = 0; x < boardSize; x++)
         {
@@ -302,5 +286,45 @@ public class ChessBoard : MonoBehaviour
         }
 
         return null;
+    }
+
+    public List<TileConfig> GetAvailablePlacementTiles()
+    {
+        // Determine how many rows player can place pieces based on board size
+        int allowedRows = GetAllowedPlacementRows();
+        List<TileConfig> availableTiles = new List<TileConfig>();
+        // Search through tiles for free positions in allowed rows
+        foreach (TileConfig tile in tiles)
+        {
+            if (tile != null)
+            {
+                if (tile.Position.y < allowedRows)
+                {
+                    if (tile.SetFreePosition(FreeTileColor, OccupiedTileColor))
+                    {
+                        availableTiles.Add(tile);
+                    }
+                }
+            }
+        }
+        return availableTiles;
+    }
+    public void ClearAvailablePlacementTiles()
+    {
+        // Reset all tiles to their default state
+        foreach (TileConfig tile in tiles)
+        {
+            if (tile != null)
+            {
+                tile.ReturnDefaultColor();
+            }
+        }
+    }
+    private int GetAllowedPlacementRows()
+    {
+        // Rules for allowed placement rows based on board size:
+        // half the board size rounded up
+
+        return Mathf.CeilToInt(boardSize / 2f) - (boardSize % 2 == 0 ? 0 : 1);
     }
 }

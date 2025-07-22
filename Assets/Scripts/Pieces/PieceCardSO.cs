@@ -5,7 +5,6 @@ using UnityEngine;
 public class PieceCardSO : ScriptableObject
 {
     public string Name;
-    //public ChessPiece Piece;
-    public Sprite Icon;
-    public ChessPiece WhitePiecePrefab, BlackPiecePrefab;
+    public Sprite IconWhite, IconBlack;
+    public ChessPiece PiecePrefab;
 }

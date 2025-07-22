@@ -3,12 +3,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Rendering;
 public class PieceCard : MonoBehaviour, IInteractable
 {
     [Header("Board Tile Props")]
     [SerializeField] private LayerMask _tileLayerMask;
 
     [Header("Piece Card Components")]
+    [SerializeField] private SortingGroup _sortingGroup;
+    [SerializeField] private Canvas _canvas;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private List<TMP_Text> _names = new();
     [SerializeField] private List<Image> _symbols = new();
@@ -19,12 +22,16 @@ public class PieceCard : MonoBehaviour, IInteractable
     public PieceCardSO Data => _data;
     private ChessBoard _chessBoard;
     private DeckManager _deckManager;
+    public bool Putted;
 
     public void Initialize(PieceCardSO data, ChessBoard chessBoard, DeckManager deckManager)
     {
         _deckManager = deckManager;
         _data = data;
-        _spriteRenderer.sprite = data.Icon;
+        if (PlayerPrefs.GetInt("PlayerIndex") == 0)
+            _spriteRenderer.sprite = data.IconWhite;
+        else
+            _spriteRenderer.sprite = data.IconBlack;
         _chessBoard = chessBoard;
         foreach (var name in _names)
         {
@@ -32,34 +39,68 @@ public class PieceCard : MonoBehaviour, IInteractable
         }
         foreach (var symbol in _symbols)
         {
-            symbol.sprite = data.Icon;
+            if (PlayerPrefs.GetInt("PlayerIndex") == 0)
+                symbol.sprite = data.IconWhite;
+            else
+                symbol.sprite = data.IconBlack;
         }
     }
-
+    private List<TileConfig> _availableTiles = new List<TileConfig>();
     public void InteractDown()
     {
+        _availableTiles = _chessBoard.GetAvailablePlacementTiles();
     }
 
     public bool InteractUP()
     {
+        _chessBoard.ClearAvailablePlacementTiles();
+        if (Putted) return false;
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, 100, _tileLayerMask);
         if (hit.collider != null)
         {
             //call piece Spawn function
             TileConfig tileConfig = _chessBoard.FindTile(hit.collider.gameObject);
+
+            if (!_availableTiles.Contains(tileConfig))
+            {
+                Debug.Log("Tile not available for placement: " + tileConfig.Position);
+                return false;
+            }
+
             _deckManager.RemoveCard(this);
-            if (tileConfig.Occupied) return false;
-            ChessPiece piece = Instantiate(PlayerConfig.Instance.PlayerColor == PlayerColors.White ? _data.WhitePiecePrefab : _data.BlackPiecePrefab, transform.position, Quaternion.identity);
+
+            if (tileConfig.Occupied)
+            {
+                return false;
+            }
+
+            ChessPiece piece = Instantiate(_data.PiecePrefab, transform.position, Quaternion.identity);
+
+            piece.InitializePiece(this, tileConfig.Position, (PlayerColors)(PlayerPrefs.GetInt("PlayerIndex")));
+
             tileConfig.SetTile(piece);
-            Destroy(gameObject);
+
+            TakeCardAsUsed();
             return true;
         }
         return false;
+    }
+    private void TakeCardAsUsed()
+    {
+        _deckManager.RearrangeHand();
+        _deckManager.RemoveCard(this);
+        Putted = true;
+        _spriteRenderer.DOFade(0.5f, 0.5f);
     }
     public void CanceledInteraction()
     {
         _deckManager.AddCard(this);
         // Handle any cleanup or state reset if needed
         Debug.Log("Interaction canceled for PieceCard: " + _data.Name);
+    }
+    public void SetSortingOrder(int order)
+    {
+        _sortingGroup.sortingOrder = order;
+        _canvas.sortingOrder = order; // Canvas should be above the sprite
     }
 }

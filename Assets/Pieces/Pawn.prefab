@@ -731,7 +731,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: -1
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 85133707
-  m_SortingOrder: 4
+  m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &5558698694974524049
 MonoBehaviour:
@@ -872,6 +872,8 @@ MonoBehaviour:
   _tileLayerMask:
     serializedVersion: 2
     m_Bits: 128
+  _sortingGroup: {fileID: 4232889526229053950}
+  _canvas: {fileID: 1364503659091746852}
   _spriteRenderer: {fileID: 686502729175843982}
   _names:
   - {fileID: 8611894586573206302}

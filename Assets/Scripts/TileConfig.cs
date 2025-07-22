@@ -31,4 +31,15 @@ public class TileConfig
         CurrentPiece.transform.position = TileObject.transform.position;
         Occupied = true;
     }
+    public bool SetFreePosition(Color freeColor, Color occupedColor)
+    {
+        TileObject.GetComponent<SpriteRenderer>().color = freeColor;
+        if (!Occupied) return true;
+        TileObject.GetComponent<SpriteRenderer>().color = occupedColor;
+        return false;
+    }
+    public void ReturnDefaultColor()
+    {
+        TileObject.GetComponent<SpriteRenderer>().color = Color.white;
+    }
 }

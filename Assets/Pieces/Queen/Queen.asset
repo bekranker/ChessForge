@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Queen
   m_EditorClassIdentifier: 
   Name: Q
-  Icon: {fileID: 21300000, guid: c3592b84a010f48958bb4a63f90bf91e, type: 3}
-  WhitePiecePrefab: {fileID: 8287116247286176350, guid: e799a2c18b0db4bb3a1ca7339fb02531, type: 3}
-  BlackPiecePrefab: {fileID: 6378927353156882967, guid: 72e0af13d81594f7a968313ed4256e26, type: 3}
+  IconWhite: {fileID: 21300000, guid: c3592b84a010f48958bb4a63f90bf91e, type: 3}
+  IconBlack: {fileID: 21300000, guid: b0ea1d6bff9694803b87f47cfbd4b2a3, type: 3}
+  PiecePrefab: {fileID: 8287116247286176350, guid: e799a2c18b0db4bb3a1ca7339fb02531, type: 3}
