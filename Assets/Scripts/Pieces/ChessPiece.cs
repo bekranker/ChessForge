@@ -14,10 +14,10 @@ public abstract partial class ChessPiece : MonoBehaviour
 
     protected ChessBoard chessBoard;
     protected bool isSelected = false;
-    protected PieceCard pieceCard; // Reference to the piece card if applicable
+    public PieceCard PieceCard; // Reference to the piece card if applicable
     public void InitializePiece(PieceCard referenceCard, Vector2Int initialPosition, PlayerColors color)
     {
-        pieceCard = referenceCard;
+        PieceCard = referenceCard;
         boardPosition = initialPosition;
         pieceColor = color;
 

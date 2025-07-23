@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7663251333952035597}
   - component: {fileID: 4362567580804921142}
   - component: {fileID: 4342464382581530627}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Knight Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.0001, y: 0.0001}
+  m_Size: {x: 0.75, y: 0.75}
   m_EdgeRadius: 0
 --- !u!114 &4342464382581530627
 MonoBehaviour:
@@ -152,3 +152,4 @@ MonoBehaviour:
   boardPosition: {x: 0, y: 0}
   hasMoved: 0
   moveSpeed: 5
+  PieceCard: {fileID: 0}

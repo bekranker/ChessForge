@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 976116850879228880}
   - component: {fileID: 8803485744302359642}
   - component: {fileID: 8287116247286176350}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Queen Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.0001, y: 0.0001}
+  m_Size: {x: 0.75, y: 0.75}
   m_EdgeRadius: 0
 --- !u!114 &8287116247286176350
 MonoBehaviour:
@@ -152,3 +152,4 @@ MonoBehaviour:
   boardPosition: {x: 0, y: 0}
   hasMoved: 0
   moveSpeed: 5
+  PieceCard: {fileID: 0}

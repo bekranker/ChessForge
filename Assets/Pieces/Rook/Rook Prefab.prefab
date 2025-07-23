@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 983924320321279198}
   - component: {fileID: 6342151641747496554}
   - component: {fileID: 7095285805800145134}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rook Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.0001, y: 0.0001}
+  m_Size: {x: 0.75, y: 0.75}
   m_EdgeRadius: 0
 --- !u!114 &7095285805800145134
 MonoBehaviour:
@@ -152,3 +152,4 @@ MonoBehaviour:
   boardPosition: {x: 0, y: 0}
   hasMoved: 0
   moveSpeed: 5
+  PieceCard: {fileID: 0}
