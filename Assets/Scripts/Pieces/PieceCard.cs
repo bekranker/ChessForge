@@ -87,6 +87,14 @@ public class PieceCard : MonoBehaviour, IInteractable
             tileConfig.SetTile(piece);
 
             TakeCardAsUsed();
+            
+            // Notify game manager that player has completed their action
+            ChessGameManager gameManager = FindFirstObjectByType<ChessGameManager>();
+            if (gameManager != null)
+            {
+                gameManager.OnPlayerAction();
+            }
+            
             return true;
         }
         return false;

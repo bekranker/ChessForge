@@ -293,17 +293,31 @@ public class ChessBoard : MonoBehaviour
         // Determine how many rows player can place pieces based on board size
         int allowedRows = GetAllowedPlacementRows();
         List<TileConfig> availableTiles = new List<TileConfig>();
+        
+        // Get current game manager to determine which player's turn it is
+        ChessGameManager gameManager = FindFirstObjectByType<ChessGameManager>();
+        PlayerColors currentPlayer = gameManager != null ? gameManager.currentPlayer : PlayerColors.White;
+        
         // Search through tiles for free positions in allowed rows
         foreach (TileConfig tile in tiles)
         {
             if (tile != null)
             {
-                if (tile.Position.y < allowedRows)
+                bool canPlace = false;
+                
+                // White player places from bottom rows, Black from top rows
+                if (currentPlayer == PlayerColors.White)
                 {
-                    if (tile.SetFreePosition(FreeTileColor, OccupiedTileColor))
-                    {
-                        availableTiles.Add(tile);
-                    }
+                    canPlace = tile.Position.y < allowedRows;
+                }
+                else // Black player
+                {
+                    canPlace = tile.Position.y >= (boardSize - allowedRows);
+                }
+                
+                if (canPlace && tile.SetFreePosition(FreeTileColor, OccupiedTileColor))
+                {
+                    availableTiles.Add(tile);
                 }
             }
         }

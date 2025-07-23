@@ -53,11 +53,14 @@ public abstract partial class ChessPiece : MonoBehaviour
         }
 
         ChessPiece targetPiece = chessBoard.GetPieceAt(targetPosition);
+        
+        // If there's an enemy piece, attack it
         if (targetPiece != null && targetPiece.pieceColor != pieceColor)
         {
-            Capture(targetPiece);
+            return AttackPiece(targetPiece);
         }
 
+        // Regular move
         Vector2Int oldPosition = boardPosition;
         boardPosition = targetPosition;
         hasMoved = true;
@@ -67,7 +70,71 @@ public abstract partial class ChessPiece : MonoBehaviour
         Vector3 worldPosition = chessBoard.BoardToWorldPosition(targetPosition);
         transform.position = worldPosition;
 
+        // Notify game manager of move completion
+        ChessGameManager gameManager = FindFirstObjectByType<ChessGameManager>();
+        if (gameManager != null)
+        {
+            gameManager.OnPlayerAction();
+        }
+
         return true;
+    }
+
+    public virtual bool AttackPiece(ChessPiece target)
+    {
+        if (target == null || target.pieceColor == pieceColor)
+            return false;
+
+        Vector2Int targetPosition = target.boardPosition;
+        if (!CanMoveTo(targetPosition))
+            return false;
+
+        Debug.Log($"{pieceType} {pieceColor} attacks {target.pieceType} {target.pieceColor} at {targetPosition}");
+
+        // Perform the attack (capture)
+        Capture(target);
+
+        // Move to the target's position
+        Vector2Int oldPosition = boardPosition;
+        boardPosition = targetPosition;
+        hasMoved = true;
+
+        chessBoard.UpdatePiecePosition(this, oldPosition, targetPosition);
+
+        Vector3 worldPosition = chessBoard.BoardToWorldPosition(targetPosition);
+        transform.position = worldPosition;
+
+        // Notify game manager of move completion
+        ChessGameManager gameManager = FindFirstObjectByType<ChessGameManager>();
+        if (gameManager != null)
+        {
+            gameManager.OnPlayerAction();
+        }
+
+        return true;
+    }
+
+    public virtual List<ChessPiece> GetAttackableTargets()
+    {
+        List<ChessPiece> targets = new List<ChessPiece>();
+        List<Vector2Int> validMoves = GetValidMoves();
+
+        foreach (Vector2Int move in validMoves)
+        {
+            ChessPiece targetPiece = chessBoard.GetPieceAt(move);
+            if (targetPiece != null && targetPiece.pieceColor != pieceColor)
+            {
+                targets.Add(targetPiece);
+            }
+        }
+
+        return targets;
+    }
+
+    public virtual bool CanAttack(Vector2Int targetPosition)
+    {
+        ChessPiece targetPiece = chessBoard.GetPieceAt(targetPosition);
+        return targetPiece != null && targetPiece.pieceColor != pieceColor && CanMoveTo(targetPosition);
     }
 
     public virtual void Capture(ChessPiece targetPiece)

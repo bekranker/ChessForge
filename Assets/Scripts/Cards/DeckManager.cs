@@ -103,8 +103,10 @@ public class DeckManager : MonoBehaviour, IInteractable
             RemoveCard(selectedCard);
             _cards[0].gameObject.SetActive(false);
             _cards.RemoveAt(0);
+            _maxHandSize--;
             return selectedCard;
         }
+
         return null;
     }
 
