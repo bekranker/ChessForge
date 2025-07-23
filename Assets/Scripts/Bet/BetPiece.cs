@@ -26,7 +26,7 @@ public class BetPiece : MonoBehaviour, IInteractable
             print("Hit: " + hit2D.collider.name);
             if (hit2D.collider.TryGetComponent(out ChessPiece piece))
             {
-                print("sa");
+                piece.PieceCard.SetBet(betAmount);
             }
         }
         return false;

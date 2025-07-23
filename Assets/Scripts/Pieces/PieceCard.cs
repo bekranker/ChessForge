@@ -14,6 +14,7 @@ public class PieceCard : MonoBehaviour, IInteractable
     [SerializeField] private Canvas _canvas;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private List<TMP_Text> _names = new();
+    [SerializeField] private TMP_Text _betTMP;
     [SerializeField] private List<Image> _symbols = new();
 
     [Header("Piece Card Data")]
@@ -22,8 +23,13 @@ public class PieceCard : MonoBehaviour, IInteractable
     public PieceCardSO Data => _data;
     private ChessBoard _chessBoard;
     private DeckManager _deckManager;
+    public float BetCounter;
     public bool Putted;
-
+    public void SetBet(float bet)
+    {
+        BetCounter += bet;
+        _betTMP.text = BetCounter.ToString("F2");
+    }
     public void Initialize(PieceCardSO data, ChessBoard chessBoard, DeckManager deckManager)
     {
         _deckManager = deckManager;

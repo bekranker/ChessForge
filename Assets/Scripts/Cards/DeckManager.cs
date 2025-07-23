@@ -22,6 +22,7 @@ public class DeckManager : MonoBehaviour, IInteractable
     [SerializeField] private float _curveHeight;
 
     private bool _clickable;
+    private int _maxHandSize;
     public void RearrangeHand()
     {
         Hand.RemoveAll(item => item == null);
@@ -95,6 +96,7 @@ public class DeckManager : MonoBehaviour, IInteractable
     }
     public PieceCard DrawCard()
     {
+        if (_maxHandSize <= 0) return null;
         if (Deck.Count > 0)
         {
             PieceCard selectedCard = Deck[Random.Range(0, Deck.Count)];
@@ -108,6 +110,7 @@ public class DeckManager : MonoBehaviour, IInteractable
 
     public bool SpawnHand(int count)
     {
+
         for (int i = 0; i < count; i++)
         {
             PieceCard card = DrawCard();
@@ -143,6 +146,7 @@ public class DeckManager : MonoBehaviour, IInteractable
 
     public IEnumerator InitDeck()
     {
+        _maxHandSize = PlayerPrefs.GetInt("BoardSize");
         int deckSize = PlayerPrefs.GetInt("BoardSize", 8);
         yield return StartCoroutine(SpawnAllCards());
         _clickable = true;

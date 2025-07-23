@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public abstract partial class ChessPiece : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public abstract partial class ChessPiece : MonoBehaviour
     public PieceType pieceType;
     public Vector2Int boardPosition;
     public bool hasMoved = false;
+
 
     [Header("Movement")]
     public float moveSpeed = 5f;

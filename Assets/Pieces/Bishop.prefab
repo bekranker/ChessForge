@@ -1015,10 +1015,12 @@ MonoBehaviour:
   _names:
   - {fileID: 8611894586573206302}
   - {fileID: 9140039222780215386}
+  _betTMP: {fileID: 4907822515047413086}
   _symbols:
   - {fileID: 2766120330943661892}
   - {fileID: 5851619633930049933}
   _data: {fileID: 11400000, guid: a3e0fc75aa7b941dc873cb1730e660db, type: 2}
+  BetCounter: 0
   Putted: 0
 --- !u!210 &4232889526229053950
 SortingGroup:
